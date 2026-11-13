@@ -1,7 +1,7 @@
-
 package com.example.wificardscanner
 
 import android.Manifest
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
@@ -49,8 +49,7 @@ class MainActivity : ComponentActivity() {
             if (granted) {
                 startLiveScanner()
             } else {
-                status.text =
-                    "يلزم السماح للكاميرا لاستخدام المسح المباشر."
+                status.text = "يلزم السماح للكاميرا لاستخدام المسح المباشر."
             }
         }
 
@@ -74,16 +73,16 @@ class MainActivity : ComponentActivity() {
 
         root = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
-            setPadding(18, 18, 18, 12)
+            setPadding(12, 10, 12, 8)
             setBackgroundColor(0xFFF4F7F6.toInt())
         }
 
         val heading = TextView(this).apply {
-            text = "ماسح بطاقات الواي فاي"
-            textSize = 23f
+            text = "ماسح بطاقات الواي فاي - ستار نت"
+            textSize = 18f
             gravity = Gravity.CENTER
             setTextColor(0xFF123D36.toInt())
-            setPadding(4, 12, 4, 16)
+            setPadding(2, 4, 2, 6)
         }
 
         root.addView(
@@ -93,10 +92,10 @@ class MainActivity : ComponentActivity() {
 
         status = TextView(this).apply {
             text = "جاهز. امسح QR أو اختر صورة من المعرض."
-            textSize = 15f
+            textSize = 13f
             gravity = Gravity.CENTER
             setTextColor(0xFF263238.toInt())
-            setPadding(8, 8, 8, 12)
+            setPadding(4, 2, 4, 8)
         }
 
         root.addView(
@@ -104,33 +103,38 @@ class MainActivity : ComponentActivity() {
             LinearLayout.LayoutParams(-1, -2)
         )
 
-        addButton("تشغيل الكاميرا والمسح المباشر") {
-
-            if (
-                ContextCompat.checkSelfPermission(
-                    this,
-                    Manifest.permission.CAMERA
-                ) == PackageManager.PERMISSION_GRANTED
-            ) {
+        // صف الأزرار الأول (المسح المباشر + اختيار صورة) بحجم مدمج
+        val row1 = LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+            weightSum = 2f
+        }
+        row1.addView(createCompactButton("مسح QR بالكاميرا") {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
                 startLiveScanner()
             } else {
-                cameraPermission.launch(
-                    Manifest.permission.CAMERA
-                )
+                cameraPermission.launch(Manifest.permission.CAMERA)
             }
-        }
-
-        addButton("اختيار صورة QR من المعرض") {
+        })
+        row1.addView(createCompactButton("صورة من المعرض") {
             pickImage.launch("image/*")
-        }
+        })
+        root.addView(row1, LinearLayout.LayoutParams(-1, -2).apply { bottomMargin = 4 })
 
-        addButton("فتح صفحة شبكة الإنترنت") {
+        // صف الأزرار الثاني (صفحة الشبكة + إيقاف الكاميرا + مشاركة التطبيق) بحجم مدمج
+        val row2 = LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+            weightSum = 3f
+        }
+        row2.addView(createCompactButton("صفحة الشبكة") {
             showWebPage()
-        }
-
-        addButton("إيقاف الكاميرا والعودة") {
+        })
+        row2.addView(createCompactButton("إيقاف الكاميرا") {
             stopScannerAndShowPage()
-        }
+        })
+        row2.addView(createCompactButton("مشاركة التطبيق") {
+            shareAppWithClients()
+        })
+        root.addView(row2, LinearLayout.LayoutParams(-1, -2).apply { bottomMargin = 8 })
 
         cameraArea = FrameLayout(this).apply {
             visibility = View.GONE
@@ -162,7 +166,7 @@ class MainActivity : ComponentActivity() {
                 ) {
                     pageLoaded = true
                     lastUsername?.let {
-                        fillUsername(it)
+                        fillAndSubmitUsername(it)
                     }
                 }
             }
@@ -177,25 +181,37 @@ class MainActivity : ComponentActivity() {
         showWebPage()
     }
 
-    private fun addButton(
+    private fun createCompactButton(
         label: String,
         action: () -> Unit
-    ) {
-
-        val button = Button(this).apply {
+    ): Button {
+        return Button(this).apply {
             text = label
+            textSize = 12f
             isAllCaps = false
+            setPadding(6, 4, 6, 4)
+            minHeight = 0
+            minimumHeight = 0
+            layoutParams = LinearLayout.LayoutParams(0, -2, 1f).apply {
+                setMargins(3, 0, 3, 0)
+            }
             setOnClickListener {
                 action()
             }
         }
+    }
 
-        root.addView(
-            button,
-            LinearLayout.LayoutParams(-1, -2).apply {
-                bottomMargin = 5
-            }
-        )
+    private fun shareAppWithClients() {
+        val shareIntent = Intent(Intent.ACTION_SEND).apply {
+            type = "text/plain"
+            putExtra(Intent.EXTRA_SUBJECT, "تطبيق ماسح بطاقات الواي فاي - ستار نت")
+            putExtra(
+                Intent.EXTRA_TEXT,
+                "حمّل تطبيق شبكة ستار نت لتسجيل الدخول السريع لبطاقات الواي فاي بمسح الباركود مباشرة:\n" +
+                "https://github.com/mo200400500-bot/WIFI-CARD-SCANNER/releases"
+            )
+        }
+        startActivity(Intent.createChooser(shareIntent, "مشاركة التطبيق مع عملاء الشبكة عبر"))
     }
 
     private fun openHotspotPage() {
@@ -203,7 +219,6 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun showWebPage() {
-
         scannerVisible = false
         cameraArea.visibility = View.GONE
         webView.visibility = View.VISIBLE
@@ -215,17 +230,14 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun startLiveScanner() {
-
         scannerVisible = true
 
         webView.visibility = View.GONE
         cameraArea.visibility = View.VISIBLE
 
-        status.text =
-            "وجّه الكاميرا إلى رمز QR الذي يحتوي على اسم المستخدم."
+        status.text = "وجّه الكاميرا إلى رمز QR الخاص بالكرت..."
 
-        val providerFuture =
-            ProcessCameraProvider.getInstance(this)
+        val providerFuture = ProcessCameraProvider.getInstance(this)
 
         providerFuture.addListener({
 
@@ -234,28 +246,20 @@ class MainActivity : ComponentActivity() {
             val preview = Preview.Builder()
                 .build()
                 .also {
-                    it.setSurfaceProvider(
-                        previewView.surfaceProvider
-                    )
+                    it.setSurfaceProvider(previewView.surfaceProvider)
                 }
 
             val analysis = ImageAnalysis.Builder()
-                .setBackpressureStrategy(
-                    ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST
-                )
+                .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
                 .build()
 
-            val barcodeScanner =
-                BarcodeScanning.getClient()
+            val barcodeScanner = BarcodeScanning.getClient()
 
             analysis.setAnalyzer(cameraExecutor) { imageProxy ->
 
                 val mediaImage = imageProxy.image
 
-                if (
-                    mediaImage == null ||
-                    !processing.compareAndSet(false, true)
-                ) {
+                if (mediaImage == null || !processing.compareAndSet(false, true)) {
                     imageProxy.close()
                 } else {
 
@@ -268,12 +272,9 @@ class MainActivity : ComponentActivity() {
                         .addOnSuccessListener { barcodes ->
 
                             val raw = barcodes
-                                .firstOrNull {
-                                    !it.rawValue.isNullOrBlank()
-                                }?.rawValue
+                                .firstOrNull { !it.rawValue.isNullOrBlank() }?.rawValue
 
-                            val username =
-                                raw?.let { extractUsername(it) }
+                            val username = raw?.let { extractUsername(it) }
 
                             if (!username.isNullOrBlank()) {
                                 runOnUiThread {
@@ -289,30 +290,22 @@ class MainActivity : ComponentActivity() {
             }
 
             try {
-
                 provider.unbindAll()
-
                 provider.bindToLifecycle(
                     this,
                     CameraSelector.DEFAULT_BACK_CAMERA,
                     preview,
                     analysis
                 )
-
             } catch (e: Exception) {
-
-                status.text =
-                    "تعذر تشغيل الكاميرا: " +
-                    (e.localizedMessage ?: "خطأ غير معروف")
+                status.text = "تعذر تشغيل الكاميرا: " + (e.localizedMessage ?: "خطأ غير معروف")
             }
 
         }, ContextCompat.getMainExecutor(this))
     }
 
     private fun extractUsername(raw: String): String {
-
         val value = raw.trim()
-
         return value
             .lineSequence()
             .firstOrNull()
@@ -321,11 +314,9 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun scanGalleryImage(uri: Uri) {
-
         status.text = "جارٍ فحص الصورة..."
 
         try {
-
             val image = InputImage.fromFilePath(this, uri)
 
             BarcodeScanning.getClient()
@@ -333,77 +324,66 @@ class MainActivity : ComponentActivity() {
                 .addOnSuccessListener { barcodes ->
 
                     val raw = barcodes
-                        .firstOrNull {
-                            !it.rawValue.isNullOrBlank()
-                        }?.rawValue
+                        .firstOrNull { !it.rawValue.isNullOrBlank() }?.rawValue
 
-                    val username =
-                        raw?.let { extractUsername(it) }
+                    val username = raw?.let { extractUsername(it) }
 
                     if (!username.isNullOrBlank()) {
                         onUsernameRead(username)
                     } else {
-                        status.text =
-                            "لم يتم العثور على رمز QR صالح في الصورة."
+                        status.text = "لم يتم العثور على رمز QR صالح في الصورة."
                     }
                 }
                 .addOnFailureListener {
-                    status.text =
-                        "تعذر قراءة الصورة: " +
-                        (it.localizedMessage ?: "خطأ")
+                    status.text = "تعذر قراءة الصورة: " + (it.localizedMessage ?: "خطأ")
                 }
 
         } catch (e: Exception) {
-
-            status.text =
-                "تعذر فتح الصورة المحددة."
+            status.text = "تعذر فتح الصورة المحددة."
         }
     }
 
     private fun onUsernameRead(username: String) {
-
-        if (
-            lastUsername == username &&
-            !scannerVisible
-        ) return
+        if (lastUsername == username && !scannerVisible) return
 
         lastUsername = username
 
         stopCameraOnly()
         showWebPage()
 
-        status.text =
-            "تمت قراءة اسم المستخدم: $username — جارٍ إدخاله في صفحة الدخول."
+        status.text = "تمت قراءة الكرت: $username — جارٍ تسجيل الدخول تلقائياً..."
 
         if (pageLoaded) {
-            fillUsername(username)
+            fillAndSubmitUsername(username)
         }
     }
 
-    private fun fillUsername(username: String) {
-
+    private fun fillAndSubmitUsername(username: String) {
         val safe = org.json.JSONObject.quote(username)
 
         val js = """
             (function(){
                 var el =
                     document.getElementById('myInput') ||
-                    document.querySelector(
-                        'input[name=username],input[type=text]'
-                    );
+                    document.querySelector('input[name=username],input[type=text]');
 
                 if(el){
                     el.value=$safe;
+                    el.dispatchEvent(new Event('input',{bubbles:true}));
+                    el.dispatchEvent(new Event('change',{bubbles:true}));
 
-                    el.dispatchEvent(
-                        new Event('input',{bubbles:true})
-                    );
-
-                    el.dispatchEvent(
-                        new Event('change',{bubbles:true})
-                    );
-
-                    return 'ok';
+                    // البحث عن زر الدخول أو النموذج لتسجيل الدخول تلقائياً فوراً
+                    var form = el.closest('form');
+                    var submitBtn = document.querySelector('button[type=submit], input[type=submit], button');
+                    
+                    if (submitBtn) {
+                        submitBtn.click();
+                        return 'submitted-btn';
+                    } else if (form) {
+                        form.submit();
+                        return 'submitted-form';
+                    }
+                    return 'filled-only';
                 }
 
                 return 'field-not-found';
@@ -411,27 +391,23 @@ class MainActivity : ComponentActivity() {
         """.trimIndent()
 
         webView.evaluateJavascript(js) { result ->
-
-            if (result?.contains("ok") == true) {
-
-                status.text =
-                    "تم إدخال اسم المستخدم: $username. راجع الصفحة واضغط دخول بنفسك."
-
-            } else {
-
-                status.text =
-                    "تمت قراءة $username، لكن لم نعثر على خانة اسم المستخدم. تحقق من صفحة الدخول."
+            when {
+                result?.contains("submitted") == true -> {
+                    status.text = "تم إدخال الكرت ($username) وتسجيل الدخول مباشرة!"
+                }
+                result?.contains("filled-only") == true -> {
+                    status.text = "تم إدخال الكرت ($username). اضغط على زر الدخول."
+                }
+                else -> {
+                    status.text = "تمت قراءة ($username)، تحقق من ظهور خانة الدخول في الصفحة."
+                }
             }
         }
     }
 
     private fun stopCameraOnly() {
-
         try {
-            ProcessCameraProvider
-                .getInstance(this)
-                .get()
-                .unbindAll()
+            ProcessCameraProvider.getInstance(this).get().unbindAll()
         } catch (_: Exception) {
         }
 
@@ -445,17 +421,11 @@ class MainActivity : ComponentActivity() {
     }
 
     override fun onDestroy() {
-
         super.onDestroy()
-
         try {
-            ProcessCameraProvider
-                .getInstance(this)
-                .get()
-                .unbindAll()
+            ProcessCameraProvider.getInstance(this).get().unbindAll()
         } catch (_: Exception) {
         }
-
         cameraExecutor.shutdown()
         webView.destroy()
     }
