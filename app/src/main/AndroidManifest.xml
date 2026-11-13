@@ -1,80 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:background="#0b132b"
-    android:padding="16dp">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
-    {/* منطقة عرض محتوى الويب / الشبكة */}
-    <WebView
-        android:id="@+id/webview"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:layout_marginBottom="12dp" />
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
-    {/* الأزرار في الأسفل بحجم كبير وواضح */}
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center"
-        android:weightSum="2"
-        android:layout_marginBottom="8dp">
+    <application
+        android:allowBackup="true"
+        android:icon="@drawable/app_icon"
+        android:roundIcon="@drawable/app_icon"
+        android:label="ماسح بطاقات ستار نت"
+        android:usesCleartextTraffic="true"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.AppCompat.Light.NoActionBar">
+        
+        <activity
+            android:name=".MainActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+    </application>
 
-        <Button
-            android:id="@+id/btn_scan_qr"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="مسح QR بالكاميرا"
-            android:textSize="14sp"
-            android:layout_marginEnd="6dp" />
-
-        <Button
-            android:id="@+id/btn_scan_gallery"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="صورة من المعرض"
-            android:textSize="14sp" />
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center"
-        android:weightSum="2"
-        android:layout_marginBottom="12dp">
-
-        <Button
-            android:id="@+id/btn_share"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="مشاركة التطبيق"
-            android:textSize="14sp"
-            android:layout_marginEnd="6dp" />
-
-        <Button
-            android:id="@+id/btn_network_page"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="صفحة الشبكة"
-            android:textSize="14sp" />
-    </LinearLayout>
-
-    {/* حقوق التصميم والإعداد في الأسفل */}
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="إعداد وتصميم / محمد الجنوبي 771610510"
-        android:textColor="#ffffff"
-        android:textSize="13sp"
-        android:gravity="center"
-        android:padding="4dp" />
-
-</LinearLayout>
+</manifest>
