@@ -1,7 +1,6 @@
 package com.example.wificardscanner
 
 import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
 import android.view.Gravity
 import android.view.ViewGroup
@@ -19,7 +18,6 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // التصميم الرئيسي للشاشة بلون خلفية متناسق ومريح
         val rootLayout = LinearLayout(this).apply {
             layoutParams = ViewGroup.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
@@ -30,7 +28,6 @@ class MainActivity : AppCompatActivity() {
             setPadding(16, 16, 16, 16)
         }
 
-        // منطقة عرض الويب (صفحة الشبكة) بحجم كبير ومريح تملأ المساحة
         webView = WebView(this).apply {
             layoutParams = LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
@@ -46,7 +43,6 @@ class MainActivity : AppCompatActivity() {
         }
         rootLayout.addView(webView)
 
-        // الصف الأول من الأزرار في الأسفل
         val buttonsLayout1 = LinearLayout(this).apply {
             layoutParams = LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
@@ -64,7 +60,6 @@ class MainActivity : AppCompatActivity() {
             text = "مسح QR بالكاميرا"
             textSize = 14f
             setOnClickListener {
-                // فتح صفحة الشبكة أو تسجيل الدخول عند الضغط
                 webView.loadUrl("http://l.net/login")
             }
         }
@@ -81,7 +76,6 @@ class MainActivity : AppCompatActivity() {
         buttonsLayout1.addView(btnScanGallery)
         rootLayout.addView(buttonsLayout1)
 
-        // الصف الثاني من الأزرار في الأسفل (مشاركة التطبيق وصفحة الشبكة)
         val buttonsLayout2 = LinearLayout(this).apply {
             layoutParams = LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
@@ -120,7 +114,6 @@ class MainActivity : AppCompatActivity() {
         buttonsLayout2.addView(btnNetworkPage)
         rootLayout.addView(buttonsLayout2)
 
-        // حقوق التصميم والإعداد في الأسفل باسمك ورقمك بوضوح تام
         val creditText = TextView(this).apply {
             layoutParams = LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
