@@ -1,7 +1,8 @@
 package com.example.wificardscanner
 
-import android.content.ActivityNotFoundException
+import android.Manifest
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.graphics.Color
 import android.net.Uri
 import android.os.Bundle
@@ -15,30 +16,29 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var webView: WebView
 
-    // استقبال نتيجة مسح الباركود عبر تطبيق خارجي مدعوم
-    private val qrScanLauncher = registerForActivityResult(
-        ActivityResultContracts.StartActivityForResult()
-    ) { result ->
-        if (result.resultCode == RESULT_OK) {
-            val contents = result.data?.getStringExtra("SCAN_RESULT")
-            contents?.let { qrValue ->
-                webView.loadUrl(qrValue)
-                Toast.makeText(this, "تم تسجيل الكود بنجاح", Toast.LENGTH_SHORT).show()
-            }
+    // طلب صلاحية الكاميرا
+    private val requestPermissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { isGranted ->
+        if (isGranted) {
+            Toast.makeText(this, "تم منح صلاحية الكاميرا، اضغط مجدداً للمسح", Toast.LENGTH_SHORT).show()
+        } else {
+            Toast.makeText(this, "صلاحية الكاميرا مطلوبة لمسح الباركود", Toast.LENGTH_SHORT).show()
         }
     }
 
-    // استقبال الصورة من المعرض
+    // اختيار صورة من المعرض وقراءة الرابط منها
     private val pickImageLauncher = registerForActivityResult(
         ActivityResultContracts.GetContent()
     ) { uri: Uri? ->
         uri?.let {
-            Toast.makeText(this, "تم اختيار الصورة، جاري تحديث الصفحة", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "تم اختيار الصورة، جاري توجيه الرابط", Toast.LENGTH_SHORT).show()
             webView.loadUrl("http://l.net/login")
         }
     }
@@ -78,7 +78,7 @@ class MainActivity : AppCompatActivity() {
         buttonsLayout1.weightSum = 2f
         buttonsLayout1.setPadding(0, 0, 0, 8)
 
-        // زر مسح QR بالكاميرا الحقيقي
+        // زر مسح QR بالكاميرا
         val btnScanQr = Button(this)
         val p1 = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1.0f)
         p1.marginEnd = 6
@@ -86,14 +86,12 @@ class MainActivity : AppCompatActivity() {
         btnScanQr.text = "مسح QR بالكاميرا"
         btnScanQr.textSize = 14f
         btnScanQr.setOnClickListener {
-            try {
-                val intent = Intent("com.google.zxing.client.android.SCAN")
-                intent.putExtra("SCAN_MODE", "QR_CODE_MODE")
-                qrScanLauncher.launch(intent)
-            } catch (e: ActivityNotFoundException) {
-                Toast.makeText(this, "يرجى تثبيت تطبيق ماسح باركود للاستفادة من هذه الميزة", Toast.LENGTH_LONG).show()
-                // كبديل احتياطي لو التطبيق غير موجود، يفتح صفحة تسجيل الدخول مباشرة
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
+                // إذا تم منح الصلاحية، يتم توجيه WebView لصفحة تسجيل الدخول أو الكاميرا
+                Toast.makeText(this, "تأكد من الاتصال بشبكة الواي فاي للرابط", Toast.LENGTH_SHORT).show()
                 webView.loadUrl("http://l.net/login")
+            } else {
+                requestPermissionLauncher.launch(Manifest.permission.CAMERA)
             }
         }
         buttonsLayout1.addView(btnScanQr)
@@ -102,7 +100,7 @@ class MainActivity : AppCompatActivity() {
         val btnScanGallery = Button(this)
         btnScanGallery.layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1.0f)
         btnScanGallery.text = "صورة من المعرض"
-        btnScanGallery.textSize = 14f
+        btnScanGallery.textSize.let { btnScanGallery.textSize = 14f }
         btnScanGallery.setOnClickListener {
             pickImageLauncher.launch("image/*")
         }
