@@ -32,7 +32,7 @@ class MainActivity : AppCompatActivity() {
         val webParams = LinearLayout.LayoutParams(
             LinearLayout.LayoutParams.MATCH_PARENT,
             0,
-            1f
+            1.0f
         )
         webParams.bottomMargin = 12
         webView.layoutParams = webParams
@@ -48,11 +48,11 @@ class MainActivity : AppCompatActivity() {
             LinearLayout.LayoutParams.WRAP_CONTENT
         )
         buttonsLayout1.orientation = LinearLayout.HORIZONTAL
-        buttonsLayout1.weightSum = 2
+        buttonsLayout1.weightSum = 2f
         buttonsLayout1.setPadding(0, 0, 0, 8)
 
         val btnScanQr = Button(this)
-        val p1 = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
+        val p1 = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1.0f)
         p1.marginEnd = 6
         btnScanQr.layoutParams = p1
         btnScanQr.text = "مسح QR بالكاميرا"
@@ -63,7 +63,7 @@ class MainActivity : AppCompatActivity() {
         buttonsLayout1.addView(btnScanQr)
 
         val btnScanGallery = Button(this)
-        btnScanGallery.layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
+        btnScanGallery.layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1.0f)
         btnScanGallery.text = "صورة من المعرض"
         btnScanGallery.textSize = 14f
         btnScanGallery.setOnClickListener {
@@ -78,11 +78,11 @@ class MainActivity : AppCompatActivity() {
             LinearLayout.LayoutParams.WRAP_CONTENT
         )
         buttonsLayout2.orientation = LinearLayout.HORIZONTAL
-        buttonsLayout2.weightSum = 2
+        buttonsLayout2.weightSum = 2f
         buttonsLayout2.setPadding(0, 0, 0, 12)
 
         val btnShare = Button(this)
-        val p2 = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
+        val p2 = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1.0f)
         p2.marginEnd = 6
         btnShare.layoutParams = p2
         btnShare.text = "مشاركة التطبيق"
@@ -97,7 +97,7 @@ class MainActivity : AppCompatActivity() {
         buttonsLayout2.addView(btnShare)
 
         val btnNetworkPage = Button(this)
-        btnNetworkPage.layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
+        btnNetworkPage.layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1.0f)
         btnNetworkPage.text = "صفحة الشبكة"
         btnNetworkPage.textSize = 14f
         btnNetworkPage.setOnClickListener {
