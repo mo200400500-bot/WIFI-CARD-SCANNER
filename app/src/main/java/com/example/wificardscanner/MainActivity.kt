@@ -1,5 +1,6 @@
 package com.example.wificardscanner
 
+import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.graphics.Color
 import android.net.Uri
@@ -19,11 +20,25 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var webView: WebView
 
+    // استقبال نتيجة مسح الباركود عبر تطبيق خارجي مدعوم
+    private val qrScanLauncher = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode == RESULT_OK) {
+            val contents = result.data?.getStringExtra("SCAN_RESULT")
+            contents?.let { qrValue ->
+                webView.loadUrl(qrValue)
+                Toast.makeText(this, "تم تسجيل الكود بنجاح", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
+    // استقبال الصورة من المعرض
     private val pickImageLauncher = registerForActivityResult(
         ActivityResultContracts.GetContent()
     ) { uri: Uri? ->
         uri?.let {
-            Toast.makeText(this, "تم اختيار الصورة بنجاح", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "تم اختيار الصورة، جاري تحديث الصفحة", Toast.LENGTH_SHORT).show()
             webView.loadUrl("http://l.net/login")
         }
     }
@@ -63,6 +78,7 @@ class MainActivity : AppCompatActivity() {
         buttonsLayout1.weightSum = 2f
         buttonsLayout1.setPadding(0, 0, 0, 8)
 
+        // زر مسح QR بالكاميرا الحقيقي
         val btnScanQr = Button(this)
         val p1 = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1.0f)
         p1.marginEnd = 6
@@ -70,11 +86,19 @@ class MainActivity : AppCompatActivity() {
         btnScanQr.text = "مسح QR بالكاميرا"
         btnScanQr.textSize = 14f
         btnScanQr.setOnClickListener {
-            Toast.makeText(this, "جاري فتح صفحة الشبكة", Toast.LENGTH_SHORT).show()
-            webView.loadUrl("http://l.net/login")
+            try {
+                val intent = Intent("com.google.zxing.client.android.SCAN")
+                intent.putExtra("SCAN_MODE", "QR_CODE_MODE")
+                qrScanLauncher.launch(intent)
+            } catch (e: ActivityNotFoundException) {
+                Toast.makeText(this, "يرجى تثبيت تطبيق ماسح باركود للاستفادة من هذه الميزة", Toast.LENGTH_LONG).show()
+                // كبديل احتياطي لو التطبيق غير موجود، يفتح صفحة تسجيل الدخول مباشرة
+                webView.loadUrl("http://l.net/login")
+            }
         }
         buttonsLayout1.addView(btnScanQr)
 
+        // زر صورة من المعرض
         val btnScanGallery = Button(this)
         btnScanGallery.layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1.0f)
         btnScanGallery.text = "صورة من المعرض"
@@ -94,6 +118,7 @@ class MainActivity : AppCompatActivity() {
         buttonsLayout2.weightSum = 2f
         buttonsLayout2.setPadding(0, 0, 0, 12)
 
+        // زر مشاركة التطبيق
         val btnShare = Button(this)
         val p2 = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1.0f)
         p2.marginEnd = 6
@@ -109,6 +134,7 @@ class MainActivity : AppCompatActivity() {
         }
         buttonsLayout2.addView(btnShare)
 
+        // زر صفحة الشبكة
         val btnNetworkPage = Button(this)
         btnNetworkPage.layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1.0f)
         btnNetworkPage.text = "صفحة الشبكة"
@@ -119,6 +145,7 @@ class MainActivity : AppCompatActivity() {
         buttonsLayout2.addView(btnNetworkPage)
         rootLayout.addView(buttonsLayout2)
 
+        // حقوق التصميم في الأسفل
         val creditText = TextView(this)
         creditText.layoutParams = LinearLayout.LayoutParams(
             LinearLayout.LayoutParams.MATCH_PARENT,
