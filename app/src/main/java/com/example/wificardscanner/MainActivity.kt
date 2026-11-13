@@ -1,6 +1,7 @@
 package com.example.wificardscanner
 
 import android.content.Intent
+import android.graphics.Color
 import android.os.Bundle
 import android.view.Gravity
 import android.view.ViewGroup
@@ -24,7 +25,7 @@ class MainActivity : AppCompatActivity() {
             ViewGroup.LayoutParams.MATCH_PARENT
         )
         rootLayout.orientation = LinearLayout.VERTICAL
-        rootLayout.setBackgroundColor(android.graphics.Color.parseColor("#0b132b"))
+        rootLayout.setBackgroundColor(Color.parseColor("#0b132b"))
         rootLayout.setPadding(16, 16, 16, 16)
 
         webView = WebView(this)
@@ -111,7 +112,7 @@ class MainActivity : AppCompatActivity() {
             LinearLayout.LayoutParams.WRAP_CONTENT
         )
         creditText.text = "إعداد وتصميم / محمد الجنوبي 771610510"
-        creditText.setTextColor(android.graphics.Color.WHITE)
+        creditText.setTextColor(Color.WHITE)
         creditText.textSize = 13f
         creditText.gravity = Gravity.CENTER
         creditText.setPadding(0, 4, 0, 4)
