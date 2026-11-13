@@ -1,7 +1,10 @@
 package com.example.wificardscanner
 
+import android.Manifest
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.graphics.Color
+import android.net.Uri
 import android.os.Bundle
 import android.view.Gravity
 import android.view.ViewGroup
@@ -10,11 +13,32 @@ import android.webkit.WebViewClient
 import android.widget.Button
 import android.widget.LinearLayout
 import android.widget.TextView
+import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
+import com.google.mlkit.vision.barcode.BarcodeScanning
+import com.google.mlkit.vision.common.InputImage
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var webView: WebView
+
+    private val requestPermissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { isGranted ->
+        if (isGranted) {
+            Toast.makeText(this, "تم منح صلاحية الكاميرا", Toast.LENGTH_SHORT).show()
+        } else {
+            Toast.makeText(this, "صلاحية الكاميرا مطلوبة لمسح الباركود", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private val pickImageLauncher = registerForActivityResult(
+        ActivityResultContracts.GetContent()
+    ) { uri: Uri? ->
+        uri?.let { scanQRCodeFromUri(it) }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -51,6 +75,7 @@ class MainActivity : AppCompatActivity() {
         buttonsLayout1.weightSum = 2f
         buttonsLayout1.setPadding(0, 0, 0, 8)
 
+        // زر مسح QR بالكاميرا
         val btnScanQr = Button(this)
         val p1 = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1.0f)
         p1.marginEnd = 6
@@ -58,16 +83,21 @@ class MainActivity : AppCompatActivity() {
         btnScanQr.text = "مسح QR بالكاميرا"
         btnScanQr.textSize = 14f
         btnScanQr.setOnClickListener {
-            webView.loadUrl("http://l.net/login")
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
+                Toast.makeText(this, "الكاميرا جاهزة للاستخدام", Toast.LENGTH_SHORT).show()
+            } else {
+                requestPermissionLauncher.launch(Manifest.permission.CAMERA)
+            }
         }
         buttonsLayout1.addView(btnScanQr)
 
+        // زر صورة من المعرض وقراءة الباركود منها
         val btnScanGallery = Button(this)
         btnScanGallery.layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1.0f)
         btnScanGallery.text = "صورة من المعرض"
         btnScanGallery.textSize = 14f
         btnScanGallery.setOnClickListener {
-            webView.loadUrl("http://l.net/login")
+            pickImageLauncher.launch("image/*")
         }
         buttonsLayout1.addView(btnScanGallery)
         rootLayout.addView(buttonsLayout1)
@@ -81,6 +111,7 @@ class MainActivity : AppCompatActivity() {
         buttonsLayout2.weightSum = 2f
         buttonsLayout2.setPadding(0, 0, 0, 12)
 
+        // زر مشاركة التطبيق
         val btnShare = Button(this)
         val p2 = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1.0f)
         p2.marginEnd = 6
@@ -96,6 +127,7 @@ class MainActivity : AppCompatActivity() {
         }
         buttonsLayout2.addView(btnShare)
 
+        // زر صفحة الشبكة
         val btnNetworkPage = Button(this)
         btnNetworkPage.layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1.0f)
         btnNetworkPage.text = "صفحة الشبكة"
@@ -106,6 +138,7 @@ class MainActivity : AppCompatActivity() {
         buttonsLayout2.addView(btnNetworkPage)
         rootLayout.addView(buttonsLayout2)
 
+        // حقوق التصميم في الأسفل
         val creditText = TextView(this)
         creditText.layoutParams = LinearLayout.LayoutParams(
             LinearLayout.LayoutParams.MATCH_PARENT,
@@ -119,5 +152,28 @@ class MainActivity : AppCompatActivity() {
         rootLayout.addView(creditText)
 
         setContentView(rootLayout)
+    }
+
+    private fun scanQRCodeFromUri(uri: Uri) {
+        try {
+            val image = InputImage.fromFilePath(this, uri)
+            val scanner = BarcodeScanning.getClient()
+            scanner.process(image)
+                .addOnSuccessListener { barcodes ->
+                    for (barcode in barcodes) {
+                        barcode.rawValue?.let { qrValue ->
+                            webView.loadUrl(qrValue)
+                            Toast.makeText(this, "تم قراءة الكود بنجاح", Toast.LENGTH_SHORT).show()
+                            return@addOnSuccessListener
+                        }
+                    }
+                    Toast.makeText(this, "لم يتم العثور على باركود في الصورة", Toast.LENGTH_SHORT).show()
+                }
+                .addOnFailureListener {
+                    Toast.makeText(this, "فشل قراءة الصورة", Toast.LENGTH_SHORT).show()
+                }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
     }
 }
