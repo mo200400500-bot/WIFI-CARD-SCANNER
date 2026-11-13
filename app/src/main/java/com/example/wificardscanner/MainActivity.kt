@@ -18,113 +18,103 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val rootLayout = LinearLayout(this).apply {
-            layoutParams = ViewGroup.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.MATCH_PARENT
-            )
-            orientation = LinearLayout.VERTICAL
-            setBackgroundColor(android.graphics.Color.parseColor("#0b132b"))
-            setPadding(16, 16, 16, 16)
-        }
+        val rootLayout = LinearLayout(this)
+        rootLayout.layoutParams = ViewGroup.LayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT,
+            ViewGroup.LayoutParams.MATCH_PARENT
+        )
+        rootLayout.orientation = LinearLayout.VERTICAL
+        rootLayout.setBackgroundColor(android.graphics.Color.parseColor("#0b132b"))
+        rootLayout.setPadding(16, 16, 16, 16)
 
-        webView = WebView(this).apply {
-            layoutParams = LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                0,
-                1f
-            ).apply {
-                bottomMargin = 12
-            }
-            webViewClient = WebViewClient()
-            settings.javaScriptEnabled = true
-            settings.domStorageEnabled = true
-            loadUrl("http://l.net/login")
-        }
+        webView = WebView(this)
+        val webParams = LinearLayout.LayoutParams(
+            LinearLayout.LayoutParams.MATCH_PARENT,
+            0,
+            1f
+        )
+        webParams.bottomMargin = 12
+        webView.layoutParams = webParams
+        webView.webViewClient = WebViewClient()
+        webView.settings.javaScriptEnabled = true
+        webView.settings.domStorageEnabled = true
+        webView.loadUrl("http://l.net/login")
         rootLayout.addView(webView)
 
-        val buttonsLayout1 = LinearLayout(this).apply {
-            layoutParams = LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT
-            )
-            orientation = LinearLayout.HORIZONTAL
-            weightSum = 2
-            setPadding(0, 0, 0, 8)
-        }
+        val buttonsLayout1 = LinearLayout(this)
+        buttonsLayout1.layoutParams = LinearLayout.LayoutParams(
+            LinearLayout.LayoutParams.MATCH_PARENT,
+            LinearLayout.LayoutParams.WRAP_CONTENT
+        )
+        buttonsLayout1.orientation = LinearLayout.HORIZONTAL
+        buttonsLayout1.weightSum = 2
+        buttonsLayout1.setPadding(0, 0, 0, 8)
 
-        val btnScanQr = Button(this).apply {
-            layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f).apply {
-                marginEnd = 6
-            }
-            text = "مسح QR بالكاميرا"
-            textSize = 14f
-            setOnClickListener {
-                webView.loadUrl("http://l.net/login")
-            }
+        val btnScanQr = Button(this)
+        val p1 = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
+        p1.marginEnd = 6
+        btnScanQr.layoutParams = p1
+        btnScanQr.text = "مسح QR بالكاميرا"
+        btnScanQr.textSize = 14f
+        btnScanQr.setOnClickListener {
+            webView.loadUrl("http://l.net/login")
         }
         buttonsLayout1.addView(btnScanQr)
 
-        val btnScanGallery = Button(this).apply {
-            layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
-            text = "صورة من المعرض"
-            textSize = 14f
-            setOnClickListener {
-                webView.loadUrl("http://l.net/login")
-            }
+        val btnScanGallery = Button(this)
+        btnScanGallery.layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
+        btnScanGallery.text = "صورة من المعرض"
+        btnScanGallery.textSize = 14f
+        btnScanGallery.setOnClickListener {
+            webView.loadUrl("http://l.net/login")
         }
         buttonsLayout1.addView(btnScanGallery)
         rootLayout.addView(buttonsLayout1)
 
-        val buttonsLayout2 = LinearLayout(this).apply {
-            layoutParams = LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT
-            )
-            orientation = LinearLayout.HORIZONTAL
-            weightSum = 2
-            setPadding(0, 0, 0, 12)
-        }
+        val buttonsLayout2 = LinearLayout(this)
+        buttonsLayout2.layoutParams = LinearLayout.LayoutParams(
+            LinearLayout.LayoutParams.MATCH_PARENT,
+            LinearLayout.LayoutParams.WRAP_CONTENT
+        )
+        buttonsLayout2.orientation = LinearLayout.HORIZONTAL
+        buttonsLayout2.weightSum = 2
+        buttonsLayout2.setPadding(0, 0, 0, 12)
 
-        val btnShare = Button(this).apply {
-            layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f).apply {
-                marginEnd = 6
-            }
-            text = "مشاركة التطبيق"
-            textSize = 14f
-            setOnClickListener {
-                val shareIntent = Intent().apply {
-                    action = Intent.ACTION_SEND
-                    type = "text/plain"
-                    putExtra(Intent.EXTRA_TEXT, "تطبيق ماسح بطاقات ستار نت - إعداد وتصميم: محمد الجنوبي (771610510)")
-                }
-                startActivity(Intent.createChooser(shareIntent, "مشاركة التطبيق عبر"))
-            }
+        val btnShare = Button(this)
+        val p2 = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
+        p2.marginEnd = 6
+        btnShare.layoutParams = p2
+        btnShare.text = "مشاركة التطبيق"
+        btnShare.textSize = 14f
+        btnShare.setOnClickListener {
+            val shareIntent = Intent()
+            shareIntent.action = Intent.ACTION_SEND
+            shareIntent.type = "text/plain"
+            shareIntent.putExtra(Intent.EXTRA_TEXT, "تطبيق ماسح بطاقات ستار نت - إعداد وتصميم: محمد الجنوبي (771610510)")
+            startActivity(Intent.createChooser(shareIntent, "مشاركة التطبيق عبر"))
         }
         buttonsLayout2.addView(btnShare)
 
-        val btnNetworkPage = Button(this).apply {
-            layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
-            text = "صفحة الشبكة"
-            textSize = 14f
-            setOnClickListener {
-                webView.loadUrl("http://l.net/login")
-            }
+        val btnNetworkPage = Button(this)
+        btnNetworkPage.layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
+        btnNetworkPage.text = "صفحة الشبكة"
+        btnNetworkPage.textSize = 14f
+        btnNetworkPage.setOnClickListener {
+            webView.loadUrl("http://l.net/login")
         }
         buttonsLayout2.addView(btnNetworkPage)
         rootLayout.addView(buttonsLayout2)
 
-        val creditText = TextView(this).apply {
-            layoutParams = LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT
-            )
-            text = "إعداد وتصميم / محمد الجنوبي 771610510"
-            setTextColor(android.graphics.Color.WHITE)
-            textSize = 13f
-            gravity = Gravity.CENTER
-            setPadding(0, 4, 0, 4)
-        }
+        val creditText = TextView(this)
+        creditText.layoutParams = LinearLayout.LayoutParams(
+            LinearLayout.LayoutParams.MATCH_PARENT,
+            LinearLayout.LayoutParams.WRAP_CONTENT
+        )
+        creditText.text = "إعداد وتصميم / محمد الجنوبي 771610510"
+        creditText.setTextColor(android.graphics.Color.WHITE)
+        creditText.textSize = 13f
+        creditText.gravity = Gravity.CENTER
+        creditText.setPadding(0, 4, 0, 4)
         rootLayout.addView(creditText)
 
         setContentView(rootLayout)
